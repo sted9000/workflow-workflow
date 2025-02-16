@@ -1,0 +1,98 @@
+
+{
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "jobdread-webhook",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeTag": "Webhook",
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const jobUpdate = items[0].json;\n\nif (jobUpdate.type === 'job_updated') {\n  return [{ json: jobUpdate }];\n}\n\nreturn [];"
+      },
+      "name": "Parse Webhook Body",
+      "type": "n8n-nodes-base.function",
+      "typeTag": "Function",
+      "position": [
+        450,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "pythonCode": "def identify_changes(job_update):\n    updated_parts = {}\n    if job_update['title'] != job_update.get('previous_title'):\n        updated_parts['title'] = (job_update['previous_title'], job_update['title'])\n    if job_update['description'] != job_update.get('previous_description'):\n        updated_parts['description'] = (job_update['previous_description'], job_update['description'])\n    return updated_parts\n\njob_update = input()['json']\nreturn identify_changes(job_update)"
+      },
+      "name": "Identify Job Changes",
+      "type": "n8n-nodes-base.executePythonCode",
+      "typeTag": "Execute Python Code",
+      "position": [
+        650,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "output": {
+          "json": {
+            "changes": {
+              "from": "={{$json[\"previous\"]}}",
+              "to": "={{$json[\"current\"]}}"
+            }
+          }
+        }
+      },
+      "name": "Return Job Update Details",
+      "type": "n8n-nodes-base.return",
+      "typeTag": "Return",
+      "position": [
+        850,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Parse Webhook Body",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Webhook Body": {
+      "main": [
+        [
+          {
+            "node": "Identify Job Changes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Identify Job Changes": {
+      "main": [
+        [
+          {
+            "node": "Return Job Update Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
