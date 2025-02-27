@@ -1,0 +1,9 @@
+{
+    "get_job": {
+        "url": "https://api.jobthread.com/v1/jobs",
+        "method": "GET",
+        "headers": {
+            "Authorization": "Bearer YOUR_API_KEY"
+        }
+    }
+}

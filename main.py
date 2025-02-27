@@ -1,78 +1,65 @@
-import openai
-from pathlib import Path
-from dotenv import load_dotenv
 import os
+import openai
+from datetime import datetime
+from dotenv import load_dotenv
+from llm_calls import transcribe_audio, extract_action_steps, map_action_steps_to_nodes, generate_n8n_workflow
+from utils import save_workflow
+
 load_dotenv()
 
-# Initialize OpenAI client
-client = openai.OpenAI(
-    api_key=os.getenv("OPENAI_API_KEY")
-)  # Make sure to set OPENAI_API_KEY in your environment variables
+# Set llm clients
+open_ai_client = openai.OpenAI(
+    api_key=os.environ.get("OPENAI_API_KEY")
+)
+local_llm_client = openai.OpenAI(
+    api_key=os.environ.get("OPENAI_API_KEY"),
+    base_url="http://localhost:1234/v1"
+)
 
-def transcribe_audio(audio_file_path):
-    """Transcribe audio file using OpenAI Whisper API"""
-    with open(audio_file_path, "rb") as audio_file:
-        transcript = client.audio.transcriptions.create(
-            model="whisper-1",
-            file=audio_file
-        )
-    return transcript.text
 
-def get_action_steps(transcript):
-    """Extract action steps from transcript using GPT"""
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant that extracts clear steps from text."},
-            {"role": "user", "content": "Give me the action steps in the automation workflow from this transcript:\n\n" + transcript},
-            {"role": "user", "content": "Note that the steps should reflect that we are not doing any navigation. Webhooks for all JobTread events will be captured and handled by the automation workflow."}
-        ]
-    )
-    return response.choices[0].message.content
+def main(audio_file_path, output_path):
+    """    
+    Args:
+        audio_file_path (str): Path to the audio file
+        docs_path (str): Path to the n8n nodes documentation directory
+        output_path (str): Path to save the workflow file        
+    """
+    # Step 1: Transcribe audio
+    transcript = transcribe_audio(open_ai_client, "whisper-1", audio_file_path)
+    print(f"Transcript: {transcript[:100]}...")
+    
+    # Step 2: Extract action steps
+    action_steps = extract_action_steps(open_ai_client, "gpt-4o-mini", transcript)
+    print(f"Extracted {len(action_steps)} action steps")
+    for action_step in action_steps:
+        print(action_step)
+    
+    # Step 3: Load n8n node documentation
+    # node_docs = load_n8n_node_docs()
+    # print(f"Loaded documentation for {len(node_docs)} node types")
+    
+    # Step 4: Map action steps to node types
+    mappings = map_action_steps_to_nodes(open_ai_client, "gpt-4o-mini", action_steps)
+    print(f"Created {len(mappings)} mappings between action steps and node types")
+    
+    # Step 5: Generate n8n workflow
+    workflow = generate_n8n_workflow(open_ai_client, "gpt-4o-mini", mappings)
 
-def create_n8n_workflow(action_steps):
-    """Create n8n workflow from action steps"""
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role": "system", "content": "You are an expert in creating n8n workflows. Create a valid n8n workflow JSON that implements the given action steps. Include appropriate nodes and connections."},
-            {"role": "user", "content": f"Create an n8n workflow (no comments) JSON for these steps:\n{action_steps}"}
-        ]
-    )
+    # # Step 6: Lint the workflow
+    # linted_workflow = lint_workflow(workflow)
     
-    # Parse the JSON workflow from the response
-    workflow_json = response.choices[0].message.content
+    # Step 7: Save workflow
+    save_workflow(workflow, output_path)
     
-    # Remove the code block markers
-    workflow_json = workflow_json.replace("```json", "").replace("```", "")
-    
-    # Save the workflow
-    workflow_path = Path("workflow.json")
-    with open(workflow_path, "w") as f:
-        f.write(workflow_json)
-    
-    return workflow_path
-
-def main():
-    # 1. Get audio file path from user
-    audio_file_path = input("Enter the path to your audio file: ")
-    
-    # 2. Transcribe audio
-    print("Transcribing audio...")
-    transcript = transcribe_audio(audio_file_path)
-    print("\nTranscription:")
-    print(transcript)
-    
-    # 3. Extract action steps
-    print("\nExtracting action steps...")
-    action_steps = get_action_steps(transcript)
-    print("\nAction Steps:")
-    print(action_steps)
-    
-    # 4. Create n8n workflow
-    print("\nCreating n8n workflow...")
-    workflow_path = create_n8n_workflow(action_steps)
-    print(f"\nWorkflow saved to: {workflow_path}")
+    print(f"Successfully created n8n workflow: {output_path}")
 
 if __name__ == "__main__":
-    main()
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Convert audio to n8n workflow")
+    parser.add_argument("--audio_file", default="./audio/test.m4a", help="Path to the audio file")
+    parser.add_argument("--output", default=f"./output/{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.json", help="Path to save the generated workflow")
+    
+    args = parser.parse_args()
+    
+    main(args.audio_file, args.output)
