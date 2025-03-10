@@ -1,4 +1,5 @@
 import os
+import json
 import openai
 from datetime import datetime
 from dotenv import load_dotenv
@@ -25,9 +26,16 @@ def main(audio_file_path, output_path):
         output_path (str): Path to save the workflow file        
     """
     # Step 1: Transcribe audio
-    transcript = transcribe_audio(open_ai_client, "whisper-1", audio_file_path)
-    print(f"Transcript: {transcript[:100]}...")
+    # transcript = transcribe_audio(open_ai_client, "whisper-1", audio_file_path)
+    # # Save transcript to file
+    # with open("./transcripts/test.txt", "w") as f:
+    #     f.write(transcript)
+    # print(f"Transcript: {transcript[:100]}...")
     
+    # Load transcript from file
+    with open("./transcripts/test.txt", "r") as f:
+        transcript = f.read()
+        
     # Step 2: Extract action steps
     action_steps = extract_action_steps(open_ai_client, "gpt-4o-mini", transcript)
     print(f"Extracted {len(action_steps)} action steps")
@@ -39,7 +47,8 @@ def main(audio_file_path, output_path):
     # print(f"Loaded documentation for {len(node_docs)} node types")
     
     # Step 4: Map action steps to node types
-    mappings = map_action_steps_to_nodes(open_ai_client, "gpt-4o-mini", action_steps)
+    node_docs = json.load(open("context/node_types.json"))
+    mappings = map_action_steps_to_nodes(open_ai_client, "gpt-4o-mini", action_steps, node_docs)
     print(f"Created {len(mappings)} mappings between action steps and node types")
     
     # Step 5: Generate n8n workflow
