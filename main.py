@@ -18,29 +18,11 @@ local_llm_client = openai.OpenAI(
 )
 
 
-def main(audio_file_path, output_path):
-    """    
-    Args:
-        audio_file_path (str): Path to the audio file
-        docs_path (str): Path to the n8n nodes documentation directory
-        output_path (str): Path to save the workflow file        
-    """
-    # Step 1: Transcribe audio
-    # transcript = transcribe_audio(open_ai_client, "whisper-1", audio_file_path)
-    # # Save transcript to file
-    # with open("./transcripts/test.txt", "w") as f:
-    #     f.write(transcript)
-    # print(f"Transcript: {transcript[:100]}...")
-    
-    # Load transcript from file
-    with open("./transcripts/test.txt", "r") as f:
-        transcript = f.read()
-        
-    # Step 2: Extract action steps
-    action_steps = extract_action_steps(open_ai_client, "gpt-4o-mini", transcript)
-    print(f"Extracted {len(action_steps)} action steps")
-    for action_step in action_steps:
-        print(action_step)
+def main(transcript_path, workflow_platform, output_path):
+
+    # Step 1: Extract action steps
+    action_steps = extract_action_steps(open_ai_client, "gpt-4o-mini", transcript_path)
+
     
     # Step 3: Load n8n node documentation
     # node_docs = load_n8n_node_docs()

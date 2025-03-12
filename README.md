@@ -1,146 +1,56 @@
 # Automated Workflow Generator
-A tool to create n8n workflows from a audio description using LLMs.
+Generate Workflows from client call transcripts
 
 ## Background
-I have been creating workflows for a client. It's tedious and inefficient to create the workflows manually.
+Creating automated workflows for a clients from scratch is tedious and labor intensive -- very ironic.
 
-Our current process is as follows:
-1. They have a meeting with a customer to discuss the process they want to automate
-2. They write the actions steps out in a text file
-3. They have a meeting with a MAXX Appretice to discuss the workflow
-4. The MAXX Appretice manually creates a workflow in a sandbox
-5. The client reviews the workflow, approves it, and moves it to a production environment
+## Generating Workflow Triggers and Actions (we'll call them nodes from now on) from audio transcripts
+### Inputs
+#### Prompt
+> You are an expert at designing workflow automations. Take the transcript a call with my client and return the steps in a workflow. The steps should be english, not contain code, and should include relevant details that would help an intern build the workflow. The structured response should include a single trigger and a list of ordered action steps for the workflow.
 
-This project is a proof of concept to show that we can use LLMs to generate the workflows from an audio description. Potentially, this could save the us multiple hours per workflow!
+#### Example
+> Here is an example of a well structured response: 
+{"trigger": {"description": "New Job Created", "details": "When a new job is created in JobTread the workflow automation will be triggered by a webhook." 
+}, "actions": [{"order": 0, "description": "Send Email to Client", "details": Send an email to the client with GMail. The title should be 'Welcome to Your New Job -- Acme Construction'. The body of the email should be a short message about the details of the job (found in the webhook body) and should provide a link the job details." }]
 
+#### Transcript of client call
 
-## Features
-- OpenAI's Whisper Model
-- Locally hosted LLM so build can include credentials and secrets
-
-## Usage
+### Output (Structured Output)
+A single trigger and a list of actions
 ```
-pip install -r requirements.txt
-```
-
-```
-# .env
-OPENAI_API_KEY=your_openai_api_key
-```
-
-```
-python main.py --audio_file <path_to_audio_file> --output <path_to_output_file>
-```
-
-## Finding
-With just the scafolding the workflow is ok, but still not great.
-```json
 {
-  "nodes": [
+  "trigger": {
+    "description": str,
+    "details": [str]
+  },
+  "actions" [
     {
-      "parameters": {
-        "httpMethod": "POST",
-        "path": "job-created",
-        "responseMode": "onReceived"
-      },
-      "name": "Webhook",
-      "type": "n8n-nodes-base.webhook",
-      "typeVersion": 1,
-      "position": [
-        250,
-        300
-      ]
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "boolean": [
-            {
-              "field": "json.start_date",
-              "operation": "notExists"
-            }
-          ]
-        }
-      },
-      "name": "Check Start Date",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 1,
-      "position": [
-        450,
-        300
-      ]
-    },
-    {
-      "parameters": {
-        "functionCode": "const startDate = '2023-01-01'; // example arbitrary start date\nreturn { query: `start_date=${startDate}` };"
-      },
-      "name": "Format API Query",
-      "type": "n8n-nodes-base.function",
-      "typeVersion": 1,
-      "position": [
-        650,
-        200
-      ]
-    },
-    {
-      "parameters": {
-        "url": "https://api.jobtread.com/job",
-        "method": "GET",
-        "queryParameters": {
-          "start_date": "={{$json[\"query\"]}}"
-        }
-      },
-      "name": "Send API Request",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 1,
-      "position": [
-        850,
-        300
-      ]
+      "order": int
+      "description": str,
+      "details": [str]
     }
-  ],
-  "connections": {
-    "Webhook": {
-      "main": [
-        [
-          {
-            "node": "Check Start Date",
-            "type": "default",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Check Start Date": {
-      "main": [
-        [
-          {
-            "node": "Format API Query",
-            "type": "default",
-            "index": 0
-          }
-        ],
-        []
-      ]
-    },
-    "Format API Query": {
-      "main": [
-        [
-          {
-            "node": "Send API Request",
-            "type": "default",
-            "index": 0
-          }
-        ]
-      ]
-    }
-  }
+  ]
 }
 ```
 
-However, let's see what happens when the LLM is given context -- in the form of tools -- for n8n nodes, JobTread Jobs, and JobTread's API endpoints.
+## Formatting Nodes into Valid Workflows
+### Inputs
+#### Prompt
+> You are an expert at mapping text descriptions and details of workflow automations to their correct 
 
-## TODO
-- [ ] Linting n8n workflow for errors and best practices
-- [ ] Tool use for more specific docs and context
-- [ ] Structured Output for more precise n8n node structure
+#### Trigger and Actions response (see above)
+
+#### Automation platform
+> You will be a {{workflow_platform}} workflow.
+
+#### Documentation of node types
+> 
+
+#### Credentials for third party connections
+
+### Output (Structured Output)
+Valid workflow file
+
+
+> You are an expert at engineering valid production quality workflow automation files when given a set of action steps. 
