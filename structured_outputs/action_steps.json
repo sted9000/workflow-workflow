@@ -1,54 +1,52 @@
 {
-  "response_format": {
-    "type": "json_schema",
-    "json_schema": {
-      "name": "trigger_action_plan",
-      "schema": {
-        "type": "object",
-        "properties": {
-          "trigger": {
+  "type": "json_schema",
+  "json_schema": {
+    "name": "trigger_action_plan",
+    "schema": {
+      "type": "object", 
+      "properties": {
+        "trigger": {
+          "type": "object",
+          "properties": {
+            "trigger_description": {
+              "type": "string",
+              "description": "A clear and concise description of the trigger for the workflow."
+            },
+            "trigger_details": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "description": "A detailed description of the trigger for the workflow."
+              }
+            },
+            "required": ["trigger_description", "trigger_details"]
+          }
+        },
+        "action_steps": {
+          "type": "array",
+          "items": {
             "type": "object",
             "properties": {
-              "trigger_description": {
+              "order": { "type": "integer" },
+              "action_step_description": {
                 "type": "string",
-                "description": "A clear and concise description of the trigger for the workflow."
+                "description": "A clear and concise description of the action step."
               },
-              "trigger_details": {
+              "action_step_details": {
                 "type": "array",
                 "items": {
                   "type": "string",
-                  "description": "A detailed description of the trigger for the workflow."
+                  "description": "A detailed description of the action step."
                 }
-              },
-              "required": ["trigger_description", "trigger_details"]
-            }
-          },
-          "action_steps": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "order": { "type": "integer" },
-                "action_step_description": {
-                  "type": "string",
-                  "description": "A clear and concise description of the action step."
-                },
-                "action_step_details": {
-                  "type": "array",
-                  "items": {
-                    "type": "string",
-                    "description": "A detailed description of the action step."
-                  }
-                }
-              },
-              "required": ["order", "action_step_description", "action_step_details"]
-            }
+              }
+            },
+            "required": ["order", "action_step_description", "action_step_details"]
           }
-        },
-        "required": ["trigger", "action_steps"],
-        "additionalProperties": false
+        }
       },
-      "strict": true
-    }
+      "required": ["trigger", "action_steps"],
+      "additionalProperties": false
+    },
+    "strict": true
   }
 }

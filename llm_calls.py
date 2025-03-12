@@ -1,37 +1,19 @@
 import json
 
 
-def transcribe_audio(client, model,audio_file_path):
-    """
-    Transcribe an audio file using OpenAI's Whisper model.
-    
-    Args:
-        audio_file_path (str): Path to the audio file
-        
-    Returns:
-        str: The transcribed text
-    """
-    print(f"Transcribing audio file: {audio_file_path}")
-    
-    with open(audio_file_path, "rb") as audio_file:
-        transcript = client.audio.transcriptions.create(
-            file=audio_file,
-            model=model
-        )
-    
-    return transcript.text
-
-
-def extract_action_steps(client, model, transcript):
+def extract_action_steps(client, model, transcript, response_format):
 
     """
     Use an LLM to extract action steps from a transcript.
     
     Args:
+        client (OpenAI): The OpenAI client
+        model (str): The model to use for the LLM call
         transcript (str): The transcribed text
+        response_format (dict): The response format to use for the LLM call
         
     Returns:
-        list: List of action step descriptions
+        action step (obj)
     """
     print("Extracting action steps from transcript...")
     
@@ -40,56 +22,46 @@ def extract_action_steps(client, model, transcript):
         messages=[
             {
                 "role": "system", 
-                "content": "You are an assistant that identifies actionable steps from transcripts. Extract clear, concrete actions that could be automated in a workflow."},
+                "content": "You are an expert at designing workflow automations from transcripts of conversations between myself and a client who want to automate a process in their business. The steps your response should be english, not contain code, and should include relevant details that would help an intern build the workflow. Each step should be numbered as to its position in the workflow. Each step should be a descrete action that can be represented as a workflow node. The structured of the response should JSON, include a single trigger that will be used to start the workflow, and a list of ordered action steps for the workflow."},
             {
                 "role": "user", 
-                "content": f"Extract a list of actionable steps from this transcript. Format your response as a JSON array of strings, with each string being a clear and detailed action step:\n\n{transcript}"}
+                "content": f"Extract a list of descrete, clear, and detailed action steps from this transcript that will later be used by an intern to build a workflow automation.:\n\n{transcript}"}
         ],
-        response_format={"type": "json_object"}
+        response_format=response_format
     )
     
-    action_steps = json.loads(response.choices[0].message.content).get("action_steps", [])
+    action_steps = json.loads(response.choices[0].message.content)
+    print(action_steps)
     return action_steps
 
 
-def map_action_steps_to_nodes(client, model, action_steps, node_docs):
+def match_node_types(client, model, action_steps, response_format, docs):
     """
-    Map action steps to appropriate n8n node types using an LLM and node documentation.
+    Use LLM to add node types to action steps.
     
     Args:
+        client (OpenAI): The OpenAI client
+        model (str): The model to use for the LLM call
         action_steps (list): List of action step descriptions
-        node_docs (dict): Dictionary of node documentation
+        response_format (dict): The response format to use for the LLM call
+        docs (dict): Dictionary of node documentation
         
     Returns:
         list: List of dictionaries mapping action steps to node types
     """
+    print("Matching node types to action steps...")
     
-    
-    # Use the LLM to map action steps to nodes
     response = client.chat.completions.create(
         model=model,
         messages=[
-            {"role": "system", "content": "You are an assistant that helps map action steps to appropriate n8n node types."},
-            {"role": "user", "content": f"""
-I have the following action steps that need to be implemented in an n8n workflow:
-
-{json.dumps(action_steps, indent=2)}
-
-
-Map each action step to the most appropriate n8n node type. For each action step, provide:
-1. The original action step
-2. The recommended n8n node type
-3. A brief explanation of why this node is appropriate
-
-Format your response as a JSON object with an array called 'mappings', where each item contains 'action_step_description' and  'node_type', 'explanation'. Below is the documentation for the node types:
-
-{json.dumps(node_docs, indent=2)}
-"""}
+            {"role": "system", "content": "You are an expert at mapping text descriptions and details of workflow automations to their correct node types. You will be given a list of action steps and documentation of node types. You will need to match each action step to the most appropriate node type."},
+            {"role": "user", "content": f"I have the following action steps that need to be implemented in a workflow by an intern: {json.dumps(action_steps, indent=2)}\n\nHere is the documentation for the node types: {json.dumps(docs, indent=2)}"}    
         ],
-        response_format={"type": "json_object"}
+        response_format=response_format
     )
     
-    mappings = json.loads(response.choices[0].message.content).get("mappings", [])
+    mappings = json.loads(response.choices[0].message.content)
+    print(mappings)
     return mappings
 
 

@@ -34,23 +34,42 @@ A single trigger and a list of actions
 }
 ```
 
-## Formatting Nodes into Valid Workflows
+## Add "Node Types"
 ### Inputs
 #### Prompt
-> You are an expert at mapping text descriptions and details of workflow automations to their correct 
+> You are an expert at mapping text descriptions and details of workflow automations to their correct node types
 
-#### Trigger and Actions response (see above)
+#### Transcription to Nodes Response
+#### Homemade docs for node types
 
-#### Automation platform
-> You will be a {{workflow_platform}} workflow.
+### Output (Structured Output)
+The same output as the Transcript-to-Node call + the node names
+```
+{
+  "trigger": {
+    "description": str,
+    "details": [str],
+    "node_type": str
+  },
+  "actions" [
+    {
+      "order": int
+      "description": str,
+      "details": [str],
+      "node_type"
+    }
+  ]
+}
+```
 
-#### Documentation of node types
-> 
+## Generate Valid Workflow Files
+### Inputs
+#### Prompt
+> You are an expert workflow automation software engineer. From the following data, documentation, and examples create a valid {{platform_name}} workflow file. 
 
-#### Credentials for third party connections
+#### Response to "Add Node Types" Query
+#### Comprehensive docs and node types for each of the node types
+#### An example valid workflow document
 
 ### Output (Structured Output)
 Valid workflow file
-
-
-> You are an expert at engineering valid production quality workflow automation files when given a set of action steps. 

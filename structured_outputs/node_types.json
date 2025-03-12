@@ -1,0 +1,29 @@
+{
+    "type": "json_schema",
+    "json_schema": {
+      "name": "node_types",
+      "schema": {
+        "type": "array",
+        "items": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "The id of the node input object that describes the node."
+                },
+                "node_type": {
+                    "type": "string",
+                    "description": "The node type found in the node documentation.",
+                    "enum": ["trigger", "action"]
+                },
+                "node_name": {
+                    "type": "string",
+                    "description": "The name of the node found in the node documentation."
+                }
+            },
+            "required": ["id", "node_type", "node_name"]
+        }
+      },
+      "strict": true
+    }
+  }
