@@ -1,0 +1,36 @@
+
+0:04 - Chris (Client)
+  Hello, can you help me with automations?
+
+0:09 - Ted (Workflow Interviewer)
+  Yeah, we can see what we can do for you if we can help you out. Yeah, so walk me through your problem and what needs to get automated.
+
+0:21 - Chris (Client)
+  Yeah, so what I want to do is in job tread whenever my job moves from a job status of lead to proposal.  I want to send an email from my Gmail account that says thank you for. are working with us. We just sent over a proposal and we'd love for your feedback and review.  Let us know if you have any questions or concerns. Gotcha.
+
+1:14 - Ted (Workflow Interviewer)
+  Great. So the trigger will be a JobTread webhook on job updated. And in job tread, what is the status?
+
+1:23 - Chris (Client)
+  Is that a custom field Gotcha.
+
+1:31 - Ted (Workflow Interviewer)
+  can you, is it two words, capital J, capital S? Yes.
+
+1:38 - Chris (Client)
+  Okay.
+
+1:40 - Ted (Workflow Interviewer)
+  And you want to send the email to the customer.
+
+1:49 - Chris (Client)
+  Gotcha.
+
+1:50 - Ted (Workflow Interviewer)
+  I'm trying to think if there's any other information that we need. I don't think so. I think that should be  We're all typically straight forward and we'll get that right over to you.
+
+2:03 - Chris (Client)
+  Okay. Okay. It's going to see what you can do.
+
+2:06 - Ted (Workflow Interviewer)
+  All right. Well, I'll check back soon.

@@ -1,0 +1,16 @@
+{
+    "triggers": [
+        {
+            "node_id": "n8n-trigger-jobthread-job-status-change",
+            "node_name": "JobThread Job Status Change",
+            "node_description": "Trigger a workflow when a job status changes in JobThread"
+        }
+    ],
+    "actions": [
+        {
+            "node_id": "n8n-nodes-base.gmail",
+            "node_name": "Send Email with Gmail",
+            "node_description": "Send an email with Gmail"
+        }
+    ]
+}

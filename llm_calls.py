@@ -29,8 +29,9 @@ def extract_action_steps(client, model, transcript, response_format):
         ],
         response_format=response_format
     )
-    
+    print(response)    
     action_steps = json.loads(response.choices[0].message.content)
+
     print(action_steps)
     return action_steps
 
@@ -65,7 +66,7 @@ def match_node_types(client, model, action_steps, response_format, docs):
     return mappings
 
 
-def generate_n8n_workflow(client, model, mappings):
+def build_workflow_file(client, model, mappings, workflow_response_schema, workflow_docs, workflow_examples, workflow_platform):
     """
     Generate an n8n workflow based on the mapped action steps and node types.
     

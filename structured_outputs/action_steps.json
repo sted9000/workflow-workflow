@@ -1,33 +1,17 @@
 {
   "type": "json_schema",
   "json_schema": {
-    "name": "trigger_action_plan",
+    "name": "action_steps",
     "schema": {
       "type": "object", 
       "properties": {
-        "trigger": {
-          "type": "object",
-          "properties": {
-            "trigger_description": {
-              "type": "string",
-              "description": "A clear and concise description of the trigger for the workflow."
-            },
-            "trigger_details": {
-              "type": "array",
-              "items": {
-                "type": "string",
-                "description": "A detailed description of the trigger for the workflow."
-              }
-            },
-            "required": ["trigger_description", "trigger_details"]
-          }
-        },
         "action_steps": {
           "type": "array",
           "items": {
             "type": "object",
             "properties": {
               "order": { "type": "integer" },
+              "type": { "type": "string", "enum": ["trigger", "action"] },
               "action_step_description": {
                 "type": "string",
                 "description": "A clear and concise description of the action step."
@@ -40,11 +24,12 @@
                 }
               }
             },
-            "required": ["order", "action_step_description", "action_step_details"]
+            "required": ["order", "type", "action_step_description", "action_step_details"],
+            "additionalProperties": false
           }
         }
       },
-      "required": ["trigger", "action_steps"],
+      "required": ["action_steps"],
       "additionalProperties": false
     },
     "strict": true

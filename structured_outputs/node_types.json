@@ -1,29 +1,30 @@
 {
     "type": "json_schema",
     "json_schema": {
-      "name": "node_types",
-      "schema": {
-        "type": "array",
-        "items": {
+        "name": "node_types",
+        "schema": {
             "type": "object",
             "properties": {
-                "id": {
-                    "type": "string",
-                    "description": "The id of the node input object that describes the node."
-                },
-                "node_type": {
-                    "type": "string",
-                    "description": "The node type found in the node documentation.",
-                    "enum": ["trigger", "action"]
-                },
-                "node_name": {
-                    "type": "string",
-                    "description": "The name of the node found in the node documentation."
+                "matched_node_types": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "input_object_id": {
+                                "type": "string",
+                                "description": "The id of the node input object that describes the node."
+                            },
+                            "node_id": {
+                                "type": "string",
+                                "description": "The node id found in the node documentation."
+                            }
+                        },
+                        "required": ["input_object_id", "node_id"]
+                    }
                 }
             },
-            "required": ["id", "node_type", "node_name"]
+            "required": ["matched_node_types"],
+            "strict": true
         }
-      },
-      "strict": true
     }
-  }
+}

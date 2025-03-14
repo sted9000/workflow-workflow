@@ -34,7 +34,7 @@ A single trigger and a list of actions
 }
 ```
 
-## Add "Node Types"
+## Map Nodes to Node Types
 ### Inputs
 #### Prompt
 > You are an expert at mapping text descriptions and details of workflow automations to their correct node types
@@ -43,23 +43,9 @@ A single trigger and a list of actions
 #### Homemade docs for node types
 
 ### Output (Structured Output)
-The same output as the Transcript-to-Node call + the node names
+Array of objects containing an id to map them back to the Node descriptions, a node type (trigger, action), and the name of the node type that corresponds to the specified workflow platform.
 ```
-{
-  "trigger": {
-    "description": str,
-    "details": [str],
-    "node_type": str
-  },
-  "actions" [
-    {
-      "order": int
-      "description": str,
-      "details": [str],
-      "node_type"
-    }
-  ]
-}
+[{id: str, node_type: str, node_name: str}]
 ```
 
 ## Generate Valid Workflow Files
