@@ -1,0 +1,39 @@
+{
+  "name": "Example Workflow 1",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "463aaec4-c38d-472a-99d1-fbb0ca68d970",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "51a1a6b4-3ec9-429f-8778-4ddbf9d40cc4",
+      "name": "Webhook",
+      "webhookId": "463aaec4-c38d-472a-99d1-fbb0ca68d970"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        0
+      ],
+      "id": "50ed624b-589b-4eba-861f-a85263fe22b9",
+      "name": "HTTP Request"
+    }
+  ],
+  "connections": {
+
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
